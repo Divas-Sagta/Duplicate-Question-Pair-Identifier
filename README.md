@@ -20,10 +20,10 @@ We will develop a system to classify whether question pairs are duplicates or no
 
 The Kaggle dataset consists of the following columns:
 
-- id - the id of a training set question pair
-- qid1, qid2 - unique ids of each question (only available in train.csv)
-- question1, question2 - the full text of each question
-- is_duplicate - the target variable, set to 1 if question1 and question2 have essentially the same meaning, and 0 otherwise.
+- **id** - the id of a training set question pair
+- **qid1, qid2** - unique ids of each question (only available in train.csv)
+- **question1, question2** - the full text of each question
+- **is_duplicate** - the target variable, set to 1 if question1 and question2 have essentially the same meaning, and 0 otherwise.
 
 
 ## Performance Metrics
@@ -42,21 +42,18 @@ The distribution of duplicate and non-duplicate question pairs is:
   <img src="images/is_duplicate_dist.png">
 </div>
 
-The distribution of questions among the data points is:
+
+The distribution of questions among the data points is as follows. We can see that around **63 %** questions pair are not duplicate and **36 %** questions pair are duplicate.
 
 <div align="center">
   <img src="images/quest_dist.png">
 </div>
 
-As we can see above that approx 63 percent questions pair are not duplicate and 36 percent questions pair are duplicate.
 
-Total number of questions: 808702
-
-Total number of unique questions: 537388
-
-Total number of duplicate questions occuring more than once: 20.82 %
-
-Maximum occurence of single repeated question: 161
+Total number of questions: **808702**
+Total number of unique questions: **537388**
+Total number of duplicate questions occuring more than once: **20.82 %**
+Maximum occurence of single repeated question: **161**
 
 The following is the log-histogram of the questions frequency:
 
@@ -78,7 +75,7 @@ We have constructed few features like:
 - Number of common words in question1 and question2
 - Common words ratio i.e. Number of common words in question1 and question2 / Total number of words in question1 and question2
 
-When we plot the common words ratio distribution, we can observe that common words ratio for non-duplicate and duplicate question pairs can be useful as they are neither overlapping completely nor separated apart ideally.
+Let's take a look at plot of common words ratio, we can observe that distibution for non-duplicate and duplicate question pairs can be useful as they are neither overlapping completely nor separated apart ideally.
 
 <div align="center">
   <img src="images/common_word_dist.png">
@@ -131,12 +128,140 @@ The following is the distribution plot for all FuzzyWuzzy features:
 
 ## Feature Analysis
 
-Word Clouds help us to understand how frequency of words can contribute to identifying duplicate question pairs. The bigger the word, the more number of occurences of the word.
+Word Clouds help us to understand how frequency of words can contribute to identifying duplicate question pairs. The bigger the word means the more number of occurences of the word.
+
+Word cloud for non duplicate question pairs:
 
 <div align="center">
   <img src="images/word_cloud_nondup.png">
+</div>
+
+Word cloud for duplicate question pairs:
+
+<div align="center">
   <img src="images/word_cloud_duplicate.png">
 </div>
+
+
+
+### Machine Learning Models:
+   - Trained a random model to check Worst case log loss and got log loss as 0.887699
+   - Trained some models and also tuned hyperparameters using Random and Grid search. I didnt used total train data to train my algorithms. Because of ram availability constraint in my PC, i sampled some data and Trained my models. below are models and their logloss scores. you can check total modelling and feature extraction [here](https://github.com/UdiBhaskar/Quora-Question-pair-similarity/blob/master/Quora%20Question%20pair%20similarity.ipynb)  
+   For below table BF - Basic features, AF - Advanced features, DF - Distance Features including WMD.
+
+| Model         | Features Used | Log Loss |
+| ------------- | ------------- | ------------- |
+| Logistic Regression  | BF + AF  | 0.4003415  |
+| Linear SVM           | BF + AF  | 0.4036245  |
+| Random Forest  | BF + AF  | 0.4143914  |
+| XGBoost  | BF + AF  | 0.362546  |
+| Logistic Regression  | BF + AF + Tf-Idf  | 0.358445  |
+| Linear SVM  | BF + AF + Tf-Idf  | 0.362049  |
+| Logistic Regression  | BF + AF + DF + AVG-W2V  | 0.3882535  |
+| Linear SVM  |  BF + AF + DF + AVG-W2V  | 0.394458  |
+| XGBoost  | BF + AF + DF + AVG-W2V  | 0.313341  |
+
+
+
+## Solution
+
+BOW, TF-IDF and Word2venc are the most common methods people use in information retrieval. Generally speaking, SVMs and Naive Bayes are more common for classification problem, however, We will be using the SGD and XGBoost classifiers that allow us to specify the log loss metric while training the model.
+
+**XGBoost** is an optimized distributed gradient boosting library designed to be highly efficient, flexible and portable. It implements machine learning algorithms under the Gradient Boosting framework. **SGD** implements regularized linear models with stochastic gradient descent (SGD) learning i.e the gradient of the loss is estimated each sample at a time and the model is updated along the way with a decreasing strength schedule (aka learning rate). 
+
+
+### Bag-Of-Words (CountVectorizer)
+
+This following strategy is called the Bag of Words. Documents are described by word occurrences while completely ignoring the relative position information of the words in the document. It tokenizes the documents and counts the occurrences of token and return them as a sparse matrix.
+
+
+### TF-IDF (Word Level and N-gram Level)
+
+The tf–idf is the product of two statistics, term frequency and inverse document frequency, it is one of the most popular term-weighting schemes today. 
+
+### Word2vec
+
+Word2vec has several advantages over bag of words and TF-IDF scheme. Word2vec retains the semantic meaning of different words in a document. The context information is not lost. Another great advantage of Word2vec approach is that the size of the embedding vector is very small.
+
+Now we will apply SGD and XGBoost classifiers to all three information retrieval models and check which of the gives us better performance.
+
+
+We can see the log losses obtailed for different learning rates for SGD Clasiifier. We have selected the final learning rate as the one that has the lowest log loss value.
+
+<div align="center">
+    <figure>
+      <img src="images/sgd_log_loss.png">
+      <figcaption>Log Loss for BOW</figcaption>
+    </figure>
+    <figure>
+      <img src="images/tfidf_log_loss.png">
+      <figcaption>Log Loss for TF-IDF (Word Level)</figcaption>
+    </figure>
+    <figure>
+      <img src="images/ngram_log_loss.png">
+      <figcaption>Log Loss for TF-IDF (N-gram Level)</figcaption>
+    </figure>
+    <figure>
+      <img src="images/word2vec_log_loss.png">
+      <figcaption>Log Loss for Word2vec</figcaption>
+    </figure>
+</div>
+
+Following are the confusion matrix for each model and classifier:
+
+<div align="center">
+    <figure>
+      <img src="images/bow_sgd_cm.png">
+      <figcaption>Confusion Matrix for BOW (SGD)</figcaption>
+    </figure>
+    <figure>
+      <img src="images/bow_xgb_cm.png">
+      <figcaption>Confusion Matrix for BOW (XGBoost)</figcaption>
+    </figure>
+    <figure>
+      <img src="images/tf_sgd_cm.png">
+      <figcaption>Confusion Matrix for TF-IDF Word Level (SGD)</figcaption>
+    </figure>
+    <figure>
+      <img src="images/tf_xgb_cm.png">
+      <figcaption>Confusion Matrix for TF-IDF Word Level (XGBoost)</figcaption>
+    </figure>
+    <figure>
+      <img src="images/ngram_sgd_cm.png">
+      <figcaption>Confusion Matrix for TF-IDF N-gram Level (SGD)</figcaption>
+    </figure>
+    <figure>
+      <img src="images/ngram_xgb_cm.png">
+      <figcaption>Confusion Matrix for TF-IDF N-gram Level (XGBoost)</figcaption>
+    </figure>
+    <figure>
+      <img src="images/word2vec_sgd_cm.png">
+      <figcaption>Confusion Matrix for Word2vec (SGD)</figcaption>
+    </figure>
+    <figure>
+      <img src="images/word2vec_cm.png">
+      <figcaption>Confusion Matrix for Word2vec (XGBoost)</figcaption>
+    </figure>
+</div>
+
+We then selected the best model i.e. TF-IDF Word Level from all the available combinations and applied hypertuning using GridSearchCV. This helped us to get the best parameters for the estimator.
+
+<div align="center">
+    <figure>
+      <img src="images/cm.png">
+      <figcaption>Confusion Matrix for TF-IDF Word Level (XGBoost Hypertuning)</figcaption>
+    </figure>
+</div>
+
+Our highest validation score is 80.7%, not bad at all for starters!
+So far our best Xgboost model is word level TF-IDF + Xgboost, the recall of duplicate questions, that is, the proportion of duplicate questions that our model is able to detect over the total amount of duplicate questions is 0.79. And this is crucial for the problem at hand, we want to detect and eliminate as many duplicate questions as possible.
+
+
+<div align="center">
+  <img src="images/output.png">
+</div>
+
+With this in mind, we can develop hybrid of models (for example, Word2vec + TF-IDF and Xgboost model) to see whether this result can be improved.
 
 
 ## Contributing
