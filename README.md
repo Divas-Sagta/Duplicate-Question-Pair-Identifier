@@ -211,11 +211,5 @@ So far our best Xgboost model is **Word-level TF-IDF + Xgboost**, the recall of 
 With this in mind, we can develop a hybrid of models to find the optimal solution. For example, we can use Word2vec with Word-level TF-IDF and Xgboost model to see whether this result can be improved.
 
 
-## Contributing
-
-Bug reports and pull requests are welcome on GitHub at https://github.com/maanavshah/quora-question-pairs. This project is intended to be a safe, welcoming space for collaboration, and contributors are expected to adhere to the [Contributor Covenant](http://contributor-covenant.org) code of conduct.
 
 
-## License
-
-The content of this repository is licensed under [MIT LICENSE](LICENSE).
