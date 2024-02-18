@@ -1,4 +1,4 @@
-<h1 align="center">Quora Question Pairs</h1>
+<h1 align="center">Duplicate Question Pair Identifier</h1>
 
 Quora is a question-and-answer website where questions are asked, answered, edited, and organized by its community of users in the form of opinions.
 
@@ -11,10 +11,10 @@ Identify which questions asked on Quora are duplicates of questions that have al
 
 The task is to predict whether a pair of questions are duplicates or not. It is a binary classification problem, for a given pair of questions we need to pr
 
-We will develop a system to classify whether question pairs are duplicates or not. We start by information retrieval with the help of models like BOW, TF-IDF, or Word2Vec. We use SGD and XGBoost for classification.
+We will develop a NLP Based system to classify whether question pairs are duplicates or not. We start by information retrieval with the help of models like BOW, TF-IDF, or Word2Vec. We use SGD and XGBoost for classification.
 
 
-## Kaggle dataset
+## Quora dataset
 
 **Link**: https://www.kaggle.com/c/quora-question-pairs
 
